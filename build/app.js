@@ -198,7 +198,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(9)();
-	exports.push([module.id, "*:focus {\n  outline: 0;\n}\nbody {\n  background: #000;\n}\n.application {\n  position: absolute;\n  left: 50%;\n  top: 10%;\n  margin-left: -224px;\n}\n.game-board {\n  background: #fff;\n}\n.frog {\n  background: url(/assets/frog.png);\n}\n", ""]);
+	exports.push([module.id, "*:focus {\n  outline: 0;\n}\nbody {\n  background: #000;\n}\n.application {\n  position: absolute;\n  left: 50%;\n  top: 10%;\n  margin-left: -224px;\n}\n.game-board {\n  background: url(/assets/board.png) #000042;\n}\n.frog {\n  background: url(/assets/frog.png);\n}\n", ""]);
 
 /***/ },
 /* 5 */
