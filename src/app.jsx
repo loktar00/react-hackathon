@@ -9,8 +9,8 @@ var React = require('react'),
         displayName: 'Application',
         render: function() {
             return (
-                <div className="Application">
-                    <GameBoard width={800} height={600}/>
+                <div className="application">
+                    <GameBoard width={448} height={416}/>
                 </div>
             );
         }

@@ -1,8 +1,25 @@
+*{
+    &:focus{
+        outline: 0;
+    }
+}
 body {
     background: #000;
 }
 
+.application{
+    position: absolute;
+    left: 50%;
+    top:10%;
+    // even though the size is configurable, I know it for the gameboard.. hackathon amiright?
+    margin-left: -224px;
+}
+
 .game-board { 
-    margin: 0 auto;
     background: #fff;
+}
+
+
+.frog {
+    background: url(/assets/frog.png);
 }
