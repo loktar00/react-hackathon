@@ -6,34 +6,26 @@ var React = require('react'),
         _move: function(x, y, dir) {
            
         },
-        propTypes: {
-            boardWidth: React.PropTypes.number.isRequired,
-            boardHeight: React.PropTypes.number.isRequired
-        },
         getInitialState: function() {
             return {
-                direction: 0,
                 x: 0,
-                y: 0,
-                toggleFrame: false
+                y: 0
             }
         },
         componentWillReceiveProps: function(nextProps) {
         },
         render: function() {
-            var styles = {
-                position: 'absolute',
-                top: this.state.y + 'px',
-                left: this.state.x + 'px',
-                backgroundPosition: this.state.toggleFrame ? 0 : '-32px',
-                webkitTransform: 'rotate(' + this.state.direction + 'deg)',
-                mozTransform: 'rotate(' + this.state.direction + 'deg)',
-                msTransform: 'rotate(' + this.state.direction + 'deg)',
-                transform: 'rotate(' + this.state.direction + 'deg)'
-            };
+            let classes = 'car ' + this.props.type,
+                styles = {
+                    position: 'absolute',
+                    top: this.state.y + 'px',
+                    left: this.state.x + 'px',
+                    height: this._height,
+                    width: this._width,
+                };
 
             return (
-                <div style={styles} className="car"></div>
+                <div style={styles} className={classes}></div>
             );
         }
     }); 
