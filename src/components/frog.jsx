@@ -1,6 +1,9 @@
 var React = require('react'),
+    Navigation = require('react-router').Navigation,
+    State = require('react-router').State,
 
     Frog = React.createClass({
+        mixins: [Navigation, State],
         _move: function(x, y, dir) {
             if(this.state.x + x >= 0 && this.state.x + x < this.props.boardWidth
                 && this.state.y + y >= 0 && this.state.y + y < this.props.boardHeight) {
@@ -10,6 +13,10 @@ var React = require('react'),
                     x: this.state.x + x,
                     direction: dir,
                     toggleFrame: !this.state.toggleFrame
+                }, function() {
+                    if(this.state.y === 0) {
+                        this.transitionTo('gamewin');
+                    }
                 });
             }
         },
