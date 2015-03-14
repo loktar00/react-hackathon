@@ -49,48 +49,42 @@
 	// GLOBAL STYLE ALL THE THINGS
 	__webpack_require__(3);
 	
-	var React = __webpack_require__(5);
-	var _require = __webpack_require__(1);
-	
-	var tick = _require.tick;
-	var GameBoard = __webpack_require__(2);
-	
-	var Application = React.createClass({
+	var React = __webpack_require__(5),
+	    GameBoard = __webpack_require__(2),
+	    Application = React.createClass({
 	    displayName: "Application",
+	    _timer: function _timer() {
+	        var _this = this;
+	
+	        this._update();
+	        setTimeout(function () {
+	            _this._timer();
+	        }, 10);
+	    },
+	    _update: function _update() {
+	        this.setState({ tick: this.state.tick + 1 });
+	    },
+	    getInitialState: function getInitialState() {
+	        return {
+	            tick: 0
+	        };
+	    },
+	    componentWillMount: function componentWillMount() {
+	        this._timer();
+	    },
 	    render: function render() {
 	        return React.createElement(
 	            "div",
 	            { className: "application" },
-	            React.createElement(GameBoard, { width: 448, height: 416 })
+	            React.createElement(GameBoard, { width: 448, height: 416, unitSize: 32, tick: this.state.tick })
 	        );
 	    }
 	});
 	
-	// This is a pretty terrible to do here but for the sake of time this is how I'm rolling.
-	function update() {
-	    tick();
-	    //setTimeout(()=>{tick();}, 10);
-	};
-	
-	update();
-	
 	React.render(React.createElement(Application, null), document.getElementById("content"));
 
 /***/ },
-/* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	var entities = [];
-	
-	function tick() {
-	    console.log("tick");
-	}
-	
-	module.exports = { tick: tick };
-
-/***/ },
+/* 1 */,
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -102,10 +96,16 @@
 	    GameBoard = React.createClass({
 	    displayName: "GameBoard",
 	
-	    _carRows: [{ speed: 3, row: 6 }, { speed: 2, row: 5 }, { speed: 1, row: 4 }, { speed: 2, row: 3 }, { speed: 3, row: 2 }],
+	    _carRows: [{ speed: 1.5, row: 6, type: "racer" }, { speed: 1, row: 5, type: "speedster" }, { speed: 0.5, row: 4, type: "tractor" }, { speed: 1, row: 3, type: "sedan" }, { speed: 0.5, row: 2, type: "racer" }],
 	    propTypes: {
 	        height: React.PropTypes.number.isRequired,
-	        width: React.PropTypes.number.isRequired
+	        width: React.PropTypes.number.isRequired,
+	        unitSize: React.PropTypes.number
+	    },
+	    getDefaultProps: function getDefaultProps() {
+	        return {
+	            unitSize: 32
+	        };
 	    },
 	    getInitialState: function getInitialState() {
 	        return {
@@ -161,8 +161,17 @@
 	            width: this.props.width,
 	            height: this.props.height
 	        },
-	            CarRows = this._carRows.map((function (carRow) {
-	            return React.createElement(CarRow, { boardHeight: this.props.height, speed: carRow.speed, row: carRow.row });
+	            CarRows = this._carRows.map((function (carRow, idx) {
+	            return React.createElement(CarRow, {
+	                key: idx,
+	                unitSize: this.props.unitSize,
+	                boardWidth: this.props.width,
+	                speed: carRow.speed,
+	                type: carRow.type,
+	                y: this.props.height - carRow.row * this.props.unitSize,
+	                tick: this.props.tick,
+	                direction: idx % 2 ? 0 : 180
+	            });
 	        }).bind(this));
 	
 	        return React.createElement(
@@ -205,7 +214,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	exports = module.exports = __webpack_require__(10)();
-	exports.push([module.id, "*:focus {\n  outline: 0;\n}\nbody {\n  background: #000;\n}\n.application {\n  position: absolute;\n  left: 50%;\n  top: 10%;\n  margin-left: -224px;\n}\n.game-board {\n  background: url(/assets/board.png) #000042;\n}\n.frog {\n  background: url(/assets/frog.png);\n}\n/* cars */\n.racer {\n  background: url(/assets/car1.png);\n}\n", ""]);
+	exports.push([module.id, "*:focus {\n  outline: 0;\n}\nbody {\n  background: #000;\n}\n.application {\n  overflow: hidden;\n  position: absolute;\n  left: 50%;\n  top: 10%;\n  margin-left: -224px;\n}\n.game-board {\n  background: url(/assets/board.png) #000042;\n}\n.frog {\n  background: url(/assets/frog.png);\n}\n/* cars */\n.racer {\n  background: url(/assets/racer.png);\n}\n.sedan {\n  background: url(/assets/sedan.png);\n}\n.tractor {\n  background: url(/assets/tractor.png);\n}\n.speedster {\n  background: url(/assets/speedster.png);\n}\n", ""]);
 
 /***/ },
 /* 5 */
@@ -498,35 +507,55 @@
 	    CarRow = React.createClass({
 	    displayName: "CarRow",
 	
-	    _height: 32,
-	    _width: "100%",
-	    _move: function _move(x, y, dir) {},
 	    propTypes: {
-	        boardHeight: React.PropTypes.number.isRequired,
-	        row: React.PropTypes.number.isRequired,
-	        dir: React.PropTypes.number.isRequired,
-	        speed: React.PropTypes.number.isRequired
+	        tick: React.PropTypes.number.isRequired,
+	        unitSize: React.PropTypes.number.isRequired,
+	        boardWidth: React.PropTypes.number.isRequired,
+	        direction: React.PropTypes.number.isRequired,
+	        speed: React.PropTypes.number.isRequired,
+	        y: React.PropTypes.number.isRequired
 	    },
 	    getInitialState: function getInitialState() {
+	        var unitSize = this.props.unitSize;
+	
 	        return {
-	            x: 0,
-	            y: this.props.boardHeight - this.props.row * this._height
+	            spacing: Math.ceil((Math.random() * (unitSize * 4) + 64) / unitSize) * unitSize,
+	            xOffset: -this.props.unitSize,
+	            cars: []
 	        };
 	    },
-	    componentWillReceiveProps: function componentWillReceiveProps(nextProps) {},
+	    componentWillMount: function componentWillMount() {
+	        // create cars...
+	        var cars = [];
+	
+	        for (var c = -1; c < 5; c++) {
+	            cars.push({ x: this.state.spacing * c });
+	        }
+	
+	        this.setState({ cars: cars });
+	    },
 	    render: function render() {
 	        var styles = {
 	            position: "absolute",
-	            top: this.state.y + "px",
-	            left: this.state.x + "px",
-	            width: this._width,
-	            height: this._height + "px"
-	        };
+	            top: this.props.y + "px",
+	            width: this.boardWidth + "px",
+	            height: this.unitSize + "px"
+	        },
+	            cars = this.state.cars.map((function (car, idx) {
+	            return React.createElement(Car, { key: idx,
+	                type: this.props.type,
+	                unitSize: this.props.unitSize,
+	                tick: this.props.tick,
+	                direction: this.props.direction,
+	                boardWidth: this.props.boardWidth,
+	                speed: this.props.speed,
+	                x: car.x });
+	        }).bind(this));
 	
 	        return React.createElement(
 	            "div",
 	            { style: styles, className: "CarRow" },
-	            React.createElement(Car, { type: "racer" })
+	            cars
 	        );
 	    }
 	});
@@ -21147,24 +21176,56 @@
 	    Car = React.createClass({
 	    displayName: "Car",
 	
-	    _width: 32,
-	    _height: 32,
-	    _move: function _move(x, y, dir) {},
-	    getInitialState: function getInitialState() {
+	    propTypes: {
+	        tick: React.PropTypes.number.isRequired,
+	        x: React.PropTypes.number,
+	        unitSize: React.PropTypes.number.isRequired,
+	        boardWidth: React.PropTypes.number.isRequired,
+	        speed: React.PropTypes.number,
+	        direction: React.PropTypes.number
+	    },
+	    getDefaultProps: function getDefaultProps() {
 	        return {
 	            x: 0,
-	            y: 0
+	            speed: 1,
+	            direction: 1
 	        };
 	    },
-	    componentWillReceiveProps: function componentWillReceiveProps(nextProps) {},
+	    getInitialState: function getInitialState() {
+	        return {
+	            x: this.props.x
+	        };
+	    },
+	    componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+	        if (nextProps.tick !== this.props.tick) {
+	            // I know this section sucks..
+	            if (this.props.direction === 0) {
+	                if (this.state.x < this.props.boardWidth) {
+	                    this.setState({ x: this.state.x + this.props.speed });
+	                } else {
+	                    this.setState({ x: -this.props.unitSize * 2 });
+	                }
+	            } else {
+	                if (this.state.x > -this.props.unitSize) {
+	                    this.setState({ x: this.state.x - this.props.speed });
+	                } else {
+	                    this.setState({ x: this.props.boardWidth + this.props.unitSize * 2 });
+	                }
+	            }
+	        }
+	    },
 	    render: function render() {
 	        var classes = "car " + this.props.type,
 	            styles = {
 	            position: "absolute",
-	            top: this.state.y + "px",
 	            left: this.state.x + "px",
-	            height: this._height,
-	            width: this._width };
+	            height: this.props.unitSize,
+	            width: this.props.unitSize,
+	            webkitTransform: "rotate(" + this.props.direction + "deg)",
+	            mozTransform: "rotate(" + this.props.direction + "deg)",
+	            msTransform: "rotate(" + this.props.direction + "deg)",
+	            transform: "rotate(" + this.props.direction + "deg)"
+	        };
 	
 	        return React.createElement("div", { style: styles, className: classes });
 	    }

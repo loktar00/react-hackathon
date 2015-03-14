@@ -4,15 +4,21 @@ var React = require('react/addons'),
 
     GameBoard = React.createClass({
         _carRows : [
-            { speed: 3, row: 6},
-            { speed: 2, row: 5},
-            { speed: 1, row: 4},
-            { speed: 2, row: 3},
-            { speed: 3, row: 2}
+            { speed: 1.5, row: 6, type: 'racer'},
+            { speed: 1, row: 5, type: 'speedster'},
+            { speed: 0.5, row: 4, type: 'tractor'},
+            { speed: 1, row: 3, type: 'sedan'},
+            { speed: 0.5, row: 2, type: 'racer'}
         ],
         propTypes: {
             height: React.PropTypes.number.isRequired,
-            width: React.PropTypes.number.isRequired
+            width: React.PropTypes.number.isRequired,
+            unitSize: React.PropTypes.number
+        },
+        getDefaultProps: function() {
+            return {
+                unitSize: 32
+            }
         },
         getInitialState: function(){
             return {
@@ -68,8 +74,17 @@ var React = require('react/addons'),
                     width: this.props.width,
                     height: this.props.height
                 },
-                CarRows = this._carRows.map(function(carRow) {
-                    return (<CarRow boardHeight={this.props.height} speed={carRow.speed} row={carRow.row}/>);
+                CarRows = this._carRows.map(function(carRow, idx) {
+                    return (<CarRow
+                        key={idx}
+                        unitSize = {this.props.unitSize}
+                        boardWidth={this.props.width}
+                        speed={carRow.speed}
+                        type={carRow.type}
+                        y={this.props.height - (carRow.row * this.props.unitSize)}
+                        tick={this.props.tick}
+                        direction={(idx%2) ? 0 : 180}
+                        />);
                 }.bind(this));
 
             return (

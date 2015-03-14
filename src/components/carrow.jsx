@@ -2,37 +2,57 @@ var React = require('react'),
     Car = require('./car.jsx'),
 
     CarRow = React.createClass({
-        _height: 32,
-        _width: '100%',
-        _move: function(x, y, dir) {
-           
-        },
         propTypes: {
-            boardHeight: React.PropTypes.number.isRequired,
-            row: React.PropTypes.number.isRequired,
-            dir: React.PropTypes.number.isRequired,
-            speed: React.PropTypes.number.isRequired
+            tick: React.PropTypes.number.isRequired,
+            unitSize: React.PropTypes.number.isRequired,
+            boardWidth: React.PropTypes.number.isRequired,
+            direction: React.PropTypes.number.isRequired,
+            speed: React.PropTypes.number.isRequired,
+            y: React.PropTypes.number.isRequired
         },
         getInitialState: function() {
+            let unitSize = this.props.unitSize;
+
             return {
-                x: 0,
-                y: this.props.boardHeight - (this.props.row * this._height)
+                spacing: Math.ceil(((Math.random()*(unitSize*4))+64)/unitSize)*unitSize,
+                xOffset: -this.props.unitSize,
+                cars : []
             }
         },
-        componentWillReceiveProps: function(nextProps) {
+        componentWillMount: function() {
+            // create cars...
+            let cars = [];
+
+            for(let c = -1; c < 5; c++) {
+                cars.push(
+                    {x : this.state.spacing * c}
+                )
+            }
+
+            this.setState({cars : cars});
         },
         render: function() {
-            var styles = {
+            let styles = {
                 position: 'absolute',
-                top: this.state.y + 'px',
-                left: this.state.x + 'px',
-                width: this._width,
-                height: this._height + 'px'
-            };
+                top: this.props.y + 'px',
+                width: this.boardWidth + 'px',
+                height: this.unitSize + 'px'
+            },
+            cars = this.state.cars.map(function(car, idx) {
+                return (<Car key={idx}
+                            type={this.props.type}
+                            unitSize={this.props.unitSize}
+                            tick={this.props.tick}
+                            direction={this.props.direction}
+                            boardWidth={this.props.boardWidth}
+                            speed={this.props.speed}
+                            x={car.x}/>
+                        );
+            }.bind(this));
 
             return (
                 <div style={styles} className='CarRow'>
-                    <Car type='racer'/>
+                    {cars}
                 </div>
             );
         }

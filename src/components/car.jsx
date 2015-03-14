@@ -1,27 +1,55 @@
 var React = require('react'),
 
     Car = React.createClass({
-        _width: 32,
-        _height: 32,
-        _move: function(x, y, dir) {
-           
+        propTypes: {
+            tick: React.PropTypes.number.isRequired,
+            x: React.PropTypes.number,
+            unitSize: React.PropTypes.number.isRequired,
+            boardWidth: React.PropTypes.number.isRequired,
+            speed: React.PropTypes.number,
+            direction: React.PropTypes.number
+        },
+        getDefaultProps: function() {
+            return {
+                x: 0,
+                speed: 1,
+                direction: 1
+            }
         },
         getInitialState: function() {
             return {
-                x: 0,
-                y: 0
+                x: this.props.x
             }
         },
         componentWillReceiveProps: function(nextProps) {
+            if(nextProps.tick !== this.props.tick) {
+                // I know this section sucks.. 
+                if(this.props.direction === 0) {
+                    if(this.state.x < this.props.boardWidth) {
+                        this.setState({x : (this.state.x + this.props.speed)});
+                    } else {
+                        this.setState({x : -this.props.unitSize*2});
+                    }
+                } else {
+                    if(this.state.x > -this.props.unitSize) {
+                        this.setState({x : (this.state.x - this.props.speed)});
+                    } else {
+                        this.setState({x : this.props.boardWidth + this.props.unitSize*2});
+                    }
+                }      
+            }
         },
         render: function() {
             let classes = 'car ' + this.props.type,
                 styles = {
                     position: 'absolute',
-                    top: this.state.y + 'px',
                     left: this.state.x + 'px',
-                    height: this._height,
-                    width: this._width,
+                    height: this.props.unitSize,
+                    width: this.props.unitSize,
+                    webkitTransform: 'rotate(' + this.props.direction + 'deg)',
+                    mozTransform: 'rotate(' + this.props.direction + 'deg)',
+                    msTransform: 'rotate(' + this.props.direction + 'deg)',
+                    transform: 'rotate(' + this.props.direction + 'deg)'
                 };
 
             return (

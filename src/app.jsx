@@ -2,27 +2,32 @@
 require('./styles.less');
 
 var React = require('react'),
-    { tick } = require('./gameloop'),
     GameBoard = require('./components/gameboard.jsx'),
 
     Application = React.createClass({
         displayName: 'Application',
+        _timer: function() {
+            this._update();
+            setTimeout(() => {this._timer()}, 10);
+        },
+        _update: function() {
+            this.setState({tick: this.state.tick+1});
+        },
+        getInitialState: function(){
+            return {
+                tick: 0
+            };
+        },
+        componentWillMount: function() {
+            this._timer();
+        },
         render: function() {
             return (
                 <div className="application">
-                    <GameBoard width={448} height={416}/>
+                    <GameBoard width={448} height={416} unitSize={32} tick={this.state.tick}/>
                 </div>
             );
         }
 });
-
-
-// This is a pretty terrible to do here but for the sake of time this is how I'm rolling.
-function update() {
-    tick();
-    //setTimeout(()=>{tick();}, 10);
-};
-
-update();
 
 React.render(<Application />, document.getElementById('content'));
