@@ -8,9 +8,7 @@ module.exports = {
     },
     devtool: 'source-map',
     plugins: [
-      new webpack.optimize.UglifyJsPlugin(),
-      new webpack.optimize.OccurenceOrderPlugin(true),
-      new webpack.optimize.AggressiveMergingPlugin()
+      
     ],
     module: {
         loaders: [
