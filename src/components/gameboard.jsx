@@ -4,6 +4,11 @@ var React = require('react/addons'),
 
     GameBoard = React.createClass({
         _carRows : [
+            { speed: 1.5, row: 12, type: 'racer'},
+            { speed: 1, row: 11, type: 'speedster'},
+            { speed: 0.5, row: 10, type: 'tractor'},
+            { speed: 1, row: 9, type: 'sedan'},
+            { speed: 0.5, row: 8, type: 'racer'},
             { speed: 1.5, row: 6, type: 'racer'},
             { speed: 1, row: 5, type: 'speedster'},
             { speed: 0.5, row: 4, type: 'tractor'},
@@ -29,6 +34,10 @@ var React = require('react/addons'),
                     right: false
                 }
             };
+        },
+        _handleGameLost: function() {
+            // drillin holes :/
+            this.props.gameLost();
         },
         _handleKeyState: function(key, flag) {
             let newState = {};
@@ -90,8 +99,13 @@ var React = require('react/addons'),
             return (
                 <div tabIndex='1' style={styles} className='game-board' onKeyUp={this.handleKeyUp} onKeyDown={this.handleKeyDown}>
                     {CarRows}
-                    <Frog boardWidth={this.props.width} boardHeight={this.props.height} keys={this.state.keys}/>
-                    }
+                    <Frog
+                        boardWidth={this.props.width}
+                        boardHeight={this.props.height}
+                        keys={this.state.keys}
+                        tick={this.props.tick}
+                        unitSize={32}
+                        gameLost={this._handleGameLost}/>
                 </div>
             );
         }

@@ -1,8 +1,6 @@
 var React = require('react'),
 
     Frog = React.createClass({
-        _width: 32,
-        _height: 32,
         _move: function(x, y, dir) {
             if(this.state.x + x >= 0 && this.state.x + x < this.props.boardWidth
                 && this.state.y + y >= 0 && this.state.y + y < this.props.boardHeight) {
@@ -15,19 +13,57 @@ var React = require('react'),
                 });
             }
         },
+        _checkCollisions: function(x, y) {
+            let pickedEl = document.elementFromPoint(x,y),
+                elList = [];
+
+            while(pickedEl && pickedEl.tagName !== 'BODY' && pickedEl.tagName !== 'HTML'){
+                if(pickedEl.classList.contains('car')) {
+                    this._handleGameLost();
+                }
+
+                elList.push(pickedEl);
+                pickedEl.style.display = 'none';
+                pickedEl = document.elementFromPoint(x,y);
+            }
+
+            elList.forEach(function(el) {
+                el.style.display = 'block';
+            });
+        },
         propTypes: {
+            unitSize: React.PropTypes.number.isRequired,
+            tick: React.PropTypes.number.isRequired,
             boardWidth: React.PropTypes.number.isRequired,
             boardHeight: React.PropTypes.number.isRequired
         },
         getInitialState: function() {
             return {
+                alive: true,
                 direction: 0,
                 x: (this.props.boardWidth/2),
-                y: this.props.boardHeight-this._height,
+                y: this.props.boardHeight-this.props.unitSize,
                 toggleFrame: false
             }
         },
+        _handleGameLost: function() {
+            this.props.gameLost();
+        },
         componentWillReceiveProps: function(nextProps) {
+            if(nextProps.tick !== this.props.tick) {
+                // UGGGLLLllly hack couldn't think of a way to handle collisions 
+
+                let bounds = this.getDOMNode().getBoundingClientRect(),
+                    x = bounds.left,
+                    y = bounds.top + this.props.unitSize;
+                // checks left sode
+                this._checkCollisions(x,y);
+
+                //checks right side
+                x += this.props.unitSize;
+                this._checkCollisions(x,y);
+            }
+
             // starting to understand why I should be using immutablejs.
             if(nextProps.keys.up !== this.props.keys.up && nextProps.keys.up){
                 this._move(0, -32, 0);
@@ -47,8 +83,8 @@ var React = require('react'),
                 position: 'absolute',
                 top: this.state.y + 'px',
                 left: this.state.x + 'px',
-                width: this._width + 'px',
-                height: this._height + 'px',
+                width: this.props.unitSize + 'px',
+                height: this.props.unitSize + 'px',
                 backgroundPosition: this.state.toggleFrame ? 0 : '-32px',
                 webkitTransform: 'rotate(' + this.state.direction + 'deg)',
                 mozTransform: 'rotate(' + this.state.direction + 'deg)',

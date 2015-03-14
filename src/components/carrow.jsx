@@ -12,7 +12,6 @@ var React = require('react'),
         },
         getInitialState: function() {
             let unitSize = this.props.unitSize;
-
             return {
                 spacing: Math.ceil(((Math.random()*(unitSize*4))+64)/unitSize)*unitSize,
                 xOffset: -this.props.unitSize,
